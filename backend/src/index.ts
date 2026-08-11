@@ -16,6 +16,7 @@ import { uploadRouter } from './routes/upload.js';
 import { calendarRouter } from './routes/calendar.js';
 import { learningRouter } from './routes/learning.js';
 import { startAutoBackup, queueStorageUpdate, restoreFromMega } from './services/megaBackup.js';
+import { ollamaUrlStorage } from './services/ollama.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,52 +32,56 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Supabase Auth Context Middleware (extracts userId from JWT and sets AsyncLocalStorage context)
-app.use(async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  let userId: string | null = null;
+app.use((req, res, next) => {
+  const customOllamaUrl = (req.headers['x-ollama-url'] as string) || '';
 
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        // Decode JWT payload
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
-        userId = payload.sub || null;
-      }
-    } catch (e) {
-      console.warn('[Auth] Failed to decode Supabase JWT:', e);
-    }
-  }
+  ollamaUrlStorage.run(customOllamaUrl, async () => {
+    const authHeader = req.headers.authorization;
+    let userId: string | null = null;
 
-  if (userId) {
-    const activeUserId = userId;
-    const safeUserId = userId.replace(/[^a-zA-Z0-9_-]/g, '');
-    const userDbPath = path.join(__dirname, '..', `planner_${safeUserId}.db`);
-
-    // Restore DB from MEGA on first request if local file doesn't exist yet
-    if (!fs.existsSync(userDbPath) && !restoredUsers.has(safeUserId)) {
-      restoredUsers.add(safeUserId);
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
       try {
-        console.log(`[Auth Sync] New user session detected for ${safeUserId}. Attempting restore from MEGA...`);
-        await restoreFromMega(userId);
-      } catch (err) {
-        console.error(`[Auth Sync] Restore check failed for ${safeUserId}:`, err);
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          // Decode JWT payload
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
+          userId = payload.sub || null;
+        }
+      } catch (e) {
+        console.warn('[Auth] Failed to decode Supabase JWT:', e);
       }
     }
 
-    res.on('finish', () => {
-      if (['POST', 'PUT', 'DELETE'].includes(req.method) && res.statusCode >= 200 && res.statusCode < 300) {
-        queueStorageUpdate(activeUserId);
-      }
-    });
+    if (userId) {
+      const activeUserId = userId;
+      const safeUserId = userId.replace(/[^a-zA-Z0-9_-]/g, '');
+      const userDbPath = path.join(__dirname, '..', `planner_${safeUserId}.db`);
 
-    userDbStorage.run(userId, () => {
+      // Restore DB from MEGA on first request if local file doesn't exist yet
+      if (!fs.existsSync(userDbPath) && !restoredUsers.has(safeUserId)) {
+        restoredUsers.add(safeUserId);
+        try {
+          console.log(`[Auth Sync] New user session detected for ${safeUserId}. Attempting restore from MEGA...`);
+          await restoreFromMega(userId);
+        } catch (err) {
+          console.error(`[Auth Sync] Restore check failed for ${safeUserId}:`, err);
+        }
+      }
+
+      res.on('finish', () => {
+        if (['POST', 'PUT', 'DELETE'].includes(req.method) && res.statusCode >= 200 && res.statusCode < 300) {
+          queueStorageUpdate(activeUserId);
+        }
+      });
+
+      userDbStorage.run(userId, () => {
+        next();
+      });
+    } else {
       next();
-    });
-  } else {
-    next();
-  }
+    }
+  });
 });
 
 import { seedCuratedCourses } from './services/curatedCoursesSeed.js';

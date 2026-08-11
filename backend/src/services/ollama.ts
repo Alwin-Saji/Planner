@@ -1,8 +1,19 @@
+import { AsyncLocalStorage } from 'async_hooks';
+
 // Ensure Node.js undici fetch allows up to 3 minutes for LLM generation headers/body
 process.env.UNDICI_HEADERS_TIMEOUT = '180000'; // 3 minutes
 process.env.UNDICI_BODY_TIMEOUT = '180000';    // 3 minutes
 
-const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
+export const ollamaUrlStorage = new AsyncLocalStorage<string>();
+
+export function getOllamaBaseUrl(): string {
+  const customUrl = ollamaUrlStorage.getStore();
+  if (customUrl) {
+    return customUrl.endsWith('/') ? customUrl.slice(0, -1) : customUrl;
+  }
+  return process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
+}
+
 const DEFAULT_MODEL = 'llama3.2';
 const POPULAR_MODELS = ['llama3.2', 'mistral', 'deepseek-r1', 'qwen2.5', 'phi3', 'gemma2', 'codellama'];
 
@@ -20,7 +31,7 @@ export async function checkOllamaStatus(): Promise<OllamaStatus> {
   let available = false;
 
   try {
-    const res = await fetch(`${OLLAMA_BASE_URL}/api/tags`, { signal: AbortSignal.timeout(3000) });
+    const res = await fetch(`${getOllamaBaseUrl()}/api/tags`, { signal: AbortSignal.timeout(3000) });
     if (res.ok) {
       const data = (await res.json()) as { models: Array<{ name: string }> };
       allModels = (data.models || []).map(m => m.name);
@@ -86,7 +97,7 @@ async function findHealthyModel(installedModels: string[]): Promise<string | nul
 
   for (const model of installedModels) {
     try {
-      const res = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+      const res = await fetch(`${getOllamaBaseUrl()}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, prompt: 'Hi', stream: false }),
@@ -116,7 +127,7 @@ export function invalidateModelCache() {
 
 export async function pullOllamaModel(modelName: string): Promise<{ success: boolean; message: string }> {
   try {
-    const res = await fetch(`${OLLAMA_BASE_URL}/api/pull`, {
+    const res = await fetch(`${getOllamaBaseUrl()}/api/pull`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: modelName, stream: false }),
@@ -165,7 +176,7 @@ export async function generateText(
   }
 
   try {
-    const res = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+    const res = await fetch(`${getOllamaBaseUrl()}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -237,7 +248,7 @@ export async function getEmbedding(text: string, model: string = 'nomic-embed-te
       return pseudoVector(text);
     }
 
-    const res = await fetch(`${OLLAMA_BASE_URL}/api/embeddings`, {
+    const res = await fetch(`${getOllamaBaseUrl()}/api/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

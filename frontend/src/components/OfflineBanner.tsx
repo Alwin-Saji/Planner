@@ -20,6 +20,7 @@ interface OfflineBannerProps {
 export const OfflineBanner: React.FC<OfflineBannerProps> = ({ show, onDismiss, compact = false, onStartOllama }) => {
   const [isStarting, setIsStarting] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const [customUrl, setCustomUrl] = React.useState(localStorage.getItem('custom_ollama_url') || '');
 
   // If the banner shows up again or status changes, reset starting state
   React.useEffect(() => {
@@ -28,6 +29,16 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ show, onDismiss, c
       setErrorMsg(null);
     }
   }, [show]);
+
+  const handleCustomUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setCustomUrl(val);
+    if (val.trim()) {
+      localStorage.setItem('custom_ollama_url', val.trim());
+    } else {
+      localStorage.removeItem('custom_ollama_url');
+    }
+  };
 
   const handleStart = async () => {
     if (!onStartOllama) return;
@@ -126,6 +137,22 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ show, onDismiss, c
                     <Terminal className="w-3 h-3 text-amber-500/70 shrink-0" />
                     <code className="text-[10px] font-mono text-amber-300 select-all">ollama pull llama3.2</code>
                   </div>
+                </div>
+              )}
+
+              {/* Custom Ollama URL Input */}
+              {!compact && (
+                <div className="mt-3.5 border-t border-amber-500/10 pt-3">
+                  <label className="block text-[10px] font-semibold text-amber-400/80 mb-1.5">
+                    Using a custom cloud/tunnel URL? (e.g. Ngrok)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://your-ngrok-tunnel.ngrok-free.app"
+                    value={customUrl}
+                    onChange={handleCustomUrlChange}
+                    className="w-full max-w-sm px-3 py-1.5 text-[11px] font-mono text-amber-200 bg-black/60 border border-amber-500/20 rounded-lg focus:border-amber-400 focus:outline-none placeholder-amber-700/50"
+                  />
                 </div>
               )}
             </div>

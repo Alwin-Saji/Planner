@@ -56,7 +56,12 @@ export async function migrateToUser(): Promise<void> {
  * Always reads from the in-memory cache — no async Supabase call needed.
  */
 function getAuthHeaders(): Record<string, string> {
-  return _cachedToken ? { Authorization: `Bearer ${_cachedToken}` } : {};
+  const headers: Record<string, string> = _cachedToken ? { Authorization: `Bearer ${_cachedToken}` } : {};
+  const customOllama = localStorage.getItem('custom_ollama_url');
+  if (customOllama) {
+    headers['X-Ollama-URL'] = customOllama.trim();
+  }
+  return headers;
 }
 
 export async function fetchBlocks(params?: { date?: string; startDate?: string; endDate?: string }): Promise<Block[]> {
