@@ -41,12 +41,7 @@ export function getDbInstance(): any {
   dbCache.set(userId, userDb);
 
   if (isNewUser) {
-    console.log(`[Db] Detected new user database for ${userId}. Triggering initial Mega storage folder setup...`);
-    import('./services/megaBackup.js').then(({ queueStorageUpdate }) => {
-      queueStorageUpdate(userId);
-    }).catch(err => {
-      console.error('[Db] Failed to trigger initial Mega storage update:', err);
-    });
+    console.log(`[Db] Created new local database path for user ${userId}.`);
   }
 
   return userDb;
