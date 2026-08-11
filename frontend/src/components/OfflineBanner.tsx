@@ -20,7 +20,7 @@ interface OfflineBannerProps {
 export const OfflineBanner: React.FC<OfflineBannerProps> = ({ show, onDismiss, compact = false, onStartOllama }) => {
   const [isStarting, setIsStarting] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
-  const [customUrl, setCustomUrl] = React.useState(localStorage.getItem('custom_ollama_url') || '');
+  const [inputValue, setInputValue] = React.useState(localStorage.getItem('custom_ollama_url') || '');
 
   // If the banner shows up again or status changes, reset starting state
   React.useEffect(() => {
@@ -30,14 +30,15 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ show, onDismiss, c
     }
   }, [show]);
 
-  const handleCustomUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCustomUrl(val);
-    if (val.trim()) {
-      localStorage.setItem('custom_ollama_url', val.trim());
+  const handleSaveUrl = () => {
+    const val = inputValue.trim();
+    if (val) {
+      localStorage.setItem('custom_ollama_url', val);
     } else {
       localStorage.removeItem('custom_ollama_url');
     }
+    // Reload the page to apply the URL immediately
+    window.location.reload();
   };
 
   const handleStart = async () => {
@@ -146,13 +147,21 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({ show, onDismiss, c
                   <label className="block text-[10px] font-semibold text-amber-400/80 mb-1.5">
                     Using a custom cloud/tunnel URL? (e.g. Ngrok)
                   </label>
-                  <input
-                    type="text"
-                    placeholder="https://your-ngrok-tunnel.ngrok-free.app"
-                    value={customUrl}
-                    onChange={handleCustomUrlChange}
-                    className="w-full max-w-sm px-3 py-1.5 text-[11px] font-mono text-amber-200 bg-black/60 border border-amber-500/20 rounded-lg focus:border-amber-400 focus:outline-none placeholder-amber-700/50"
-                  />
+                  <div className="flex items-center gap-2 max-w-md">
+                    <input
+                      type="text"
+                      placeholder="https://your-ngrok-tunnel.ngrok-free.app"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      className="flex-1 min-w-0 px-3 py-1.5 text-[11px] font-mono text-amber-200 bg-black/60 border border-amber-500/20 rounded-lg focus:border-amber-400 focus:outline-none placeholder-amber-700/50"
+                    />
+                    <button
+                      onClick={handleSaveUrl}
+                      className="px-3 py-1.5 text-[10px] font-semibold text-black bg-amber-400 hover:bg-amber-300 rounded-lg transition shrink-0 cursor-pointer"
+                    >
+                      Connect
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
