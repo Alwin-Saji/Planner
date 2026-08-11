@@ -1,0 +1,22 @@
+/**
+* @license
+*
+* Font Family: Ranade
+* Designed by: Easha Ranade, Indian Type Foundry
+* URL: https://www.fontshare.com/fonts/ranade
+* © 2026 Indian Type Foundry
+*
+* Ranade Light 
+
+*
+*/
+@font-face {
+  font-family: 'Ranade-Light';
+  src: url('../fonts/Ranade-Light.woff2') format('woff2'),
+       url('../fonts/Ranade-Light.woff') format('woff'),
+       url('../fonts/Ranade-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+  font-style: normal;
+}
+

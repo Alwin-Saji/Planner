@@ -1,0 +1,22 @@
+/**
+* @license
+*
+* Font Family: Excon
+* Designed by: Alisa Nowak
+* URL: https://www.fontshare.com/fonts/excon
+* © 2026 Indian Type Foundry
+*
+* Excon Medium 
+
+*
+*/
+@font-face {
+  font-family: 'Excon-Medium';
+  src: url('../fonts/Excon-Medium.woff2') format('woff2'),
+       url('../fonts/Excon-Medium.woff') format('woff'),
+       url('../fonts/Excon-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+
