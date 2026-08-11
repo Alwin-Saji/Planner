@@ -187,8 +187,9 @@ export async function fetchLogs(): Promise<{ logs: DailyLog[]; summary: Adherenc
 }
 
 export async function fetchOllamaStatus(): Promise<OllamaStatus> {
-  // Ollama status is global — no auth header needed (reads no user data)
-  const res = await fetch(`${API_BASE}/ai/status`);
+  const res = await fetch(`${API_BASE}/ai/status`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) return { available: false, installedModels: [], popularModels: ['llama3.2', 'mistral', 'deepseek-r1', 'qwen2.5'], currentModel: 'llama3.2' };
   return res.json();
 }
