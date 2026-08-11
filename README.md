@@ -1,138 +1,142 @@
 # 📚 Planner — Local-First AI Study & Task Management Platform
 
-**Planner** is a feature-rich, local-first study and schedule planner designed to help learners and professionals structure their goals, manage study blocks, track productivity, and query reference materials with local AI. Powered by **React 19**, **Express**, **SQLite**, and **Ollama local LLMs**.
+**Planner** is a feature-rich, local-first study and schedule planner designed to help learners structure goals, manage study blocks, track productivity, and query reference materials with local AI. Powered by **React 19**, **Express**, **SQLite**, and **Ollama local LLMs**.
 
 ---
 
 ## 🌟 Key Features
 
-### 🧠 1. AI Study Plan Generator
-- **Ollama Integration**: Uses local LLMs (e.g. `llama3.2`, `qwen`, `deepseek`) for 100% private, zero-latency generation.
-- **Customized Schedules**: Automatically builds structured, day-by-day study roadmaps based on topic, custom timeframe (1–30 days), and daily available hours.
-- **YouTube Playlist Auto-Sync**: Automatically fetches videos and metadata from YouTube playlists to insert relevant video study blocks.
-- **Resource Integration**: Automatically links pre-indexed reference documentation (React, Python, PyTorch, Rust, Next.js, etc.) into daily plans.
-
-### 📅 2. Time Blocking & Schedule Views
-- **Weekly Grid**: 7-day interactive time-blocking grid for easy scheduling and overview of your week.
-- **Daily View**: Granular hourly timeline showing current tasks, completion status, priority badges, and estimated vs. spent time.
-- **Category & Priority System**: Organize tasks with custom categories (Study, Work, Personal, Fitness, etc.), distinct color themes, and priority levels.
-
-### 💬 3. RAG (Retrieval-Augmented Generation) Chat
-- **Document & Resource Chat**: Ask questions and chat directly with your saved study materials, notes, and indexed documentation.
-- **Context-Aware Assistance**: Retrieves relevant context from your library before answering with the local LLM.
-
-### 📖 4. Resources & Knowledge Base Library
-- **Centralized Reference Hub**: Save, tag, and search links, articles, code snippets, documentation, and video tutorials.
-- **Fast Search**: Instant filtering and document discovery integrated into study planning.
-
-### 🔥 5. Heatmap Streak & Adherence Analytics
-- **GitHub-style Contribution Heatmap**: Visual streak calendar tracking study consistency and task completions across months.
-- **Productivity Telemetry**: Monitor daily completion percentages, adherence rates, and accumulated focus hours.
-
-### 💡 6. AI Schedule Suggestions & Rest Break Optimizer
-- **Smart Workload Analysis**: Analyzes current workload, completion stats, and study patterns.
-- **☕ Automatic Break Detection**: Scans your schedule for heavy continuous sessions (≥90 mins) or back-to-back blocks with zero gaps and recommends 15-minute rest breaks.
-- **1-Click Rest Insertion**: 1-click button directly inserts rest blocks into your schedule in SQLite.
-
-### 📝 7. Weekly Review & Reflection
-- **End-of-Week Retrospective**: Dedicated modal to log weekly accomplishments, key learnings, overall mood/rating, and goal adjustments.
-
-### ⚡ 8. Quick Capture (`Ctrl + K` / `Cmd + K`)
-- **Global Quick Capture**: Rapidly capture ideas, tasks, or study blocks from anywhere in the app using keyboard shortcuts.
-
-### ☁️ 9. Cloud Sync & Automatic Backup (MEGA Cloud)
-- **Automatic SQLite Backup**: Background database sync with MEGA cloud storage to safeguard your data.
-- **Manual Backup & Restore**: One-click database export/import options.
-
-### 🌐 10. Local-First & Offline Ready
-- **Privacy & Speed**: All core user data is stored locally in SQLite (`planner.db`).
-- **Offline Banner**: Network connection monitoring ensures awareness during offline sessions.
+*   **🧠 AI Study Plan Generator**: Build day-by-day study roadmaps based on topic and duration using local Ollama LLMs.
+*   **📅 Time Blocking & Schedule Views**: 7-day interactive Weekly Grid and hourly Daily View timelines.
+*   **💬 RAG (Retrieval-Augmented Generation) Chat**: Chat directly with your saved study materials, notes, and indexed documentation.
+*   **💡 AI Break Optimizer**: Scans your schedule for heavy continuous sessions and offers 1-click rest insertion.
+*   **☁️ Cloud Sync (MEGA.io)**: Automated background SQLite database uploads and restores based on authenticated user IDs.
+*   **🌐 Local-First & Offline Ready**: Detects local Ollama connection state and falls back to template mode gracefully.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: React 19 + TypeScript + Vite
-- **Styling**: Tailwind CSS + Custom CSS Variables
-- **Animations & Interactivity**: Framer Motion, GSAP, Canvas Confetti
-- **Icons**: Lucide React
-- **Drag & Drop**: `@dnd-kit/core`, `@dnd-kit/sortable`
-
-### Backend
-- **Server**: Node.js + Express (TypeScript)
-- **Database**: SQLite (`better-sqlite3` with WAL mode)
-- **Local AI Engine**: Ollama API (`ollama`)
-- **Cloud Backup**: MEGA API (`megajs`)
+*   **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, Framer Motion, GSAP, Lucide React
+*   **Backend**: Node.js, Express, TypeScript, SQLite (`better-sqlite3` with WAL mode)
+*   **Local AI Engine**: Ollama API
+*   **Cloud Backup & Storage**: MEGA API (`megajs`), Supabase Auth
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Local Development Setup
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
-- [Ollama](https://ollama.com/) (Optional but recommended for AI features; pull your preferred model e.g. `ollama pull llama3.2`)
+*   [Node.js](https://nodejs.org/) (v18+)
+*   [Ollama](https://ollama.com/) (installed locally)
+*   A [Supabase](https://supabase.com/) project (for authentication)
+*   A [MEGA.io](https://mega.io/) account (for database backups)
 
-### 1. Clone & Install Dependencies
-
+### 1. Install Dependencies
 ```bash
-# Frontend
+# Install frontend dependencies
 cd frontend
 npm install
 
-# Backend
+# Install backend dependencies
 cd ../backend
 npm install
 ```
 
-### 2. Environment Setup
+### 2. Configure Environment Variables
 
-Create a `.env` file in the `backend` directory (refer to `.env.example`):
-
+#### Frontend Configuration (`frontend/.env`)
+Create a `.env` file in the `frontend` folder:
 ```env
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Leave blank in local development to default to http://localhost:3001
+VITE_API_URL=
+```
+
+#### Backend Configuration (`backend/.env`)
+Create a `.env` file in the `backend` folder:
+```env
+# Mega.io Credentials for Automatic Database Backup
 MEGA_EMAIL=your_mega_email@example.com
 MEGA_PASSWORD=your_mega_password
 BACKUP_INTERVAL_MINUTES=360
-YOUTUBE_API_KEY=your_optional_youtube_api_key
 ```
 
 ### 3. Run Development Servers
-
 ```bash
-# Start Backend (runs on http://localhost:5000)
+# Start Backend (runs on http://localhost:3001)
 cd backend
 npm run dev
 
 # Start Frontend (runs on http://localhost:5173)
-cd frontend
+cd ../frontend
 npm run dev
 ```
 
 ---
 
-## 📁 Project Structure
+## 🧠 Setting up Ollama for Local AI
 
-```
-Planner/
-├── frontend/
-│   ├── src/
-│   │   ├── api/            # API client functions
-│   │   ├── components/     # React UI components (WeeklyGrid, DailyView, RagChat, etc.)
-│   │   ├── types/          # TypeScript interface definitions
-│   │   ├── App.tsx         # Main application container
-│   │   └── main.tsx        # Application entry point
-│   └── package.json
-└── backend/
-    ├── src/
-    │   ├── routes/         # Express API endpoints (planner, rag, blocks, backup, etc.)
-    │   ├── services/       # Ollama, MEGA Backup & Resource Search services
-    │   ├── db.ts           # SQLite database setup & migrations
-    │   └── index.ts        # Express server entry point
-    └── package.json
-```
+To use the AI generation features locally:
+1. Open your terminal and pull the default model:
+   ```bash
+   ollama pull llama3.2
+   ```
+2. Start the Ollama server:
+   ```bash
+   ollama serve
+   ```
 
 ---
 
-## 📄 License
+## ☁️ Production Deployment
 
-MIT License. Feel free to modify and build upon it!
+### 1. Supabase Authentication Setup
+Before deploying your site, configure your Google/OAuth redirects:
+1. In your **Supabase Dashboard**, go to **Authentication** -> **URL Configuration**.
+2. Set the **Site URL** to your deployed Vercel address: `https://your-app.vercel.app`.
+3. Add `http://localhost:5173/**` to the **Redirect URLs** list so local sign-ins still work.
+
+### 2. Backend Deployment (Render)
+Create a new **Web Service** on [Render](https://render.com) and configure it as follows:
+
+*   **Root Directory**: `backend`
+*   **Build Command**: `npm install && npm run build`
+*   **Start Command**: `npm start`
+*   **Environment Variables**:
+    *   `MEGA_EMAIL`: Your MEGA account email.
+    *   `MEGA_PASSWORD`: Your MEGA account password.
+    *   `BACKUP_INTERVAL_MINUTES`: `360`
+
+### 3. Frontend Deployment (Vercel)
+Create a new project on [Vercel](https://vercel.com) and configure it as follows:
+
+*   **Root Directory**: `frontend`
+*   **Build Command**: `vite build` (strict compiler checks are bypassed for release)
+*   **Output Directory**: `dist`
+*   **Environment Variables**:
+    *   `VITE_SUPABASE_URL`: Your Supabase project URL.
+    *   `VITE_SUPABASE_ANON_KEY`: Your Supabase anon key.
+    *   `VITE_API_URL`: Your deployed Render backend URL (e.g., `https://your-backend.onrender.com`).
+
+---
+
+## ⚡ Exposing Local Ollama to the Deployed Website
+
+Since your backend is hosted in the cloud (Render) and Ollama runs locally on your PC, you can bridge the connection using a secure tunnel:
+
+1. **Quit Ollama** from your system tray tray (bottom right corner of Windows).
+2. **Start Ollama with CORS enabled**:
+   ```bash
+   # Windows (CMD)
+   set OLLAMA_ORIGINS="*" && ollama serve
+   ```
+3. **Open an Ngrok Tunnel** (rewriting the host header to prevent Ollama 403 blocks):
+   ```bash
+   ngrok http 11434 --host-header="localhost:11434"
+   ```
+4. Copy the generated public HTTPS URL (e.g., `https://your-subdomain.ngrok-free.app`).
+5. On the deployed website, paste this URL into the **Custom URL** input field in the Offline Banner and click **Connect**.
+
+Your cloud-hosted website is now connected to your local GPU!
