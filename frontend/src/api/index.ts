@@ -1,7 +1,7 @@
 import { Block, Resource, DailyLog, AdherenceSummary, OllamaStatus, AISuggestion, WeeklyReviewData, LearningPath, FatigueReport, EnergyProfile, RescheduleSlot } from '../types';
 import { getSupabaseClient } from '../supabaseClient';
 
-const API_BASE = '/api';
+export const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api';
 
 // ---------------------------------------------------------------------------
 // Cached auth token — updated whenever Supabase session changes.

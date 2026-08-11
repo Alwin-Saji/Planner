@@ -44,6 +44,7 @@ import {
   autoScheduleBreaks,
   refreshAuthToken,
   migrateToUser,
+  API_BASE,
 } from './api';
 import { getTodayStr } from './utils/dateUtils';
 
@@ -172,7 +173,7 @@ export function App() {
               // Send Google OAuth tokens to backend for calendar background sync
               if (session.provider_token) {
                 try {
-                  await fetch('http://localhost:3001/api/calendar/tokens/supabase', {
+                  await fetch(`${API_BASE}/calendar/tokens/supabase`, {
                     method: 'POST',
                     headers: { 
                       'Content-Type': 'application/json',
