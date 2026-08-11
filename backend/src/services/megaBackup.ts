@@ -265,7 +265,7 @@ export async function restoreFromMega(userId: string): Promise<boolean> {
       // Download the file buffer from MEGA
       const fileBuffer: Buffer = await new Promise((resolve, reject) => {
         const chunks: Buffer[] = [];
-        const stream = backupFile.download();
+        const stream = backupFile.download({});
         stream.on('data', (chunk: Buffer) => chunks.push(chunk));
         stream.on('end', () => resolve(Buffer.concat(chunks)));
         stream.on('error', reject);
